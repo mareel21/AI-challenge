@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function getInitials(name) {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        return name.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase().slice(0, 2);
     }
 
     function renderPodium(data) {
@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Display order: silver (2nd) left, gold (1st) center, bronze (3rd) right
         const slots = [
-            { person: top3[1], rank: 2 },
+            top3.length > 1 ? { person: top3[1], rank: 2 } : null,
             { person: top3[0], rank: 1 },
-            { person: top3[2], rank: 3 }
-        ].filter(s => s.person);
+            top3.length > 2 ? { person: top3[2], rank: 3 } : null
+        ].filter(Boolean);
 
         const tierClass = { 1: 'gold', 2: 'silver', 3: 'bronze' };
 
