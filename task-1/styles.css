@@ -1,0 +1,261 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.filters {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+}
+
+.filter-group select:focus {
+    border-color: #29b6f6;
+}
+
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.leaderboard-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transition: box-shadow 0.2s ease;
+}
+
+.leaderboard-card:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-main-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.rank {
+    font-size: 28px;
+    font-weight: 300;
+    color: #999;
+    min-width: 40px;
+    text-align: center;
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e0e0e0;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.user-title {
+    font-size: 14px;
+    color: #888;
+}
+
+.stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.stat-item .stat-icon {
+    color: #29b6f6;
+    font-size: 18px;
+}
+
+.stat-item .stat-value {
+    font-size: 13px;
+    color: #29b6f6;
+    font-weight: 500;
+}
+
+.total-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 16px;
+}
+
+.total-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.total-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.total-score .star-icon {
+    color: #29b6f6;
+    font-size: 24px;
+}
+
+.total-score .score-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #29b6f6;
+}
+
+.expand-btn {
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.expand-btn:hover {
+    border-color: #29b6f6;
+    color: #29b6f6;
+}
+
+.expand-btn.expanded {
+    transform: rotate(180deg);
+}
+
+.card-details {
+    display: none;
+    width: 100%;
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.card-details.visible {
+    display: block;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.detail-item i {
+    color: #29b6f6;
+    width: 20px;
+    text-align: center;
+}
+
+.card-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-card {
+        flex-wrap: wrap;
+        padding: 16px;
+    }
+
+    .stats {
+        gap: 12px;
+    }
+
+    .total-section {
+        margin-left: 0;
+    }
+
+    .filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
