@@ -1,6 +1,6 @@
-// Application logic
 document.addEventListener('DOMContentLoaded', () => {
     const leaderboardEl = document.getElementById('leaderboard');
+    const podiumEl = document.getElementById('podium-section');
     const departmentFilter = document.getElementById('department-filter');
     const periodFilter = document.getElementById('period-filter');
     const sortBy = document.getElementById('sort-by');
@@ -13,6 +13,53 @@ document.addEventListener('DOMContentLoaded', () => {
         departmentFilter.appendChild(option);
     });
 
+    // ── Podium ──────────────────────────────────────────────
+    function renderPodium(data) {
+        podiumEl.innerHTML = '';
+        if (data.length === 0) return;
+
+        const first  = data[0] || null;
+        const second = data[1] || null;
+        const third  = data[2] || null;
+
+        // Order: 2nd | 1st | 3rd
+        const slots = [
+            { person: second, rank: 2 },
+            { person: first,  rank: 1 },
+            { person: third,  rank: 3 },
+        ];
+
+        slots.forEach(({ person, rank }) => {
+            const slot = document.createElement('div');
+            slot.className = `podium-slot podium-rank-${rank}`;
+
+            if (!person) { podiumEl.appendChild(slot); return; }
+
+            const badgeColors = { 1: '#f59e0b', 2: '#94a3b8', 3: '#b45309' };
+            const pillClass   = rank === 1 ? 'podium-pill podium-pill--gold' : 'podium-pill';
+            const blockHeights = { 1: 160, 2: 118, 3: 98 };
+            const blockColors  = { 1: '#fde68a', 2: '#cbd5e1', 3: '#cbd5e1' };
+
+            slot.innerHTML = `
+                <div class="podium-avatar-wrap">
+                    <img class="podium-avatar podium-avatar--${rank}" src="${person.avatar}" alt="${person.name}">
+                    <div class="podium-badge" style="background:${badgeColors[rank]}">${rank}</div>
+                </div>
+                <div class="podium-name">${person.name}</div>
+                <div class="podium-title">${person.title}</div>
+                <div class="${pillClass}">
+                    <i class="fas fa-star"></i> ${person.total}
+                </div>
+                <div class="podium-block" style="height:${blockHeights[rank]}px;background:${blockColors[rank]}">
+                    <span class="podium-block-num">${rank}</span>
+                </div>
+            `;
+
+            podiumEl.appendChild(slot);
+        });
+    }
+
+    // ── List ─────────────────────────────────────────────────
     function renderLeaderboard(data) {
         leaderboardEl.innerHTML = '';
         data.forEach((person, index) => {
@@ -22,28 +69,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createCard(person, rank) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'leaderboard-card';
+        const container = document.createElement('div');
+        container.className = 'leaderboard-card';
 
-        const statsHtml = buildStatsHtml(person);
-
-        wrapper.innerHTML = `
+        const mainRow = document.createElement('div');
+        mainRow.className = 'card-main-row';
+        mainRow.innerHTML = `
             <span class="rank">${rank}</span>
             <img class="avatar" src="${person.avatar}" alt="${person.name}">
             <div class="user-info">
                 <div class="user-name">${person.name}</div>
                 <div class="user-title">${person.title}</div>
             </div>
-            <div class="stats">
-                ${statsHtml}
-            </div>
+            <div class="stats">${buildStatsHtml(person)}</div>
             <div class="total-section">
-                <div>
-                    <span class="total-label">TOTAL</span>
-                    <div class="total-score">
-                        <i class="fas fa-star star-icon"></i>
-                        <span class="score-value">${person.total}</span>
-                    </div>
+                <span class="total-label">TOTAL</span>
+                <div class="total-score">
+                    <i class="fas fa-star star-icon"></i>
+                    <span class="score-value">${person.total}</span>
                 </div>
             </div>
             <button class="expand-btn" aria-label="Expand details">
@@ -51,46 +94,23 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
 
-        // Add expandable details section
         const details = document.createElement('div');
         details.className = 'card-details';
         details.innerHTML = `
             <div class="details-grid">
-                <div class="detail-item">
-                    <i class="fas fa-building"></i>
-                    <span>Department: ${person.department}</span>
-                </div>
-                <div class="detail-item">
-                    <i class="fas fa-desktop"></i>
-                    <span>Presentations: ${person.presentations}</span>
-                </div>
-                <div class="detail-item">
-                    <i class="fas fa-gem"></i>
-                    <span>Reviews: ${person.reviews}</span>
-                </div>
-                <div class="detail-item">
-                    <i class="fas fa-users"></i>
-                    <span>Mentoring: ${person.mentoring}</span>
-                </div>
+                <div class="detail-item"><i class="fas fa-building"></i><span>Department: ${person.department}</span></div>
+                <div class="detail-item"><i class="fas fa-desktop"></i><span>Presentations: ${person.presentations}</span></div>
+                <div class="detail-item"><i class="fas fa-gem"></i><span>Reviews: ${person.reviews}</span></div>
+                <div class="detail-item"><i class="fas fa-users"></i><span>Mentoring: ${person.mentoring}</span></div>
             </div>
         `;
-
-        // Wrap card content and details
-        const container = document.createElement('div');
-        container.className = 'leaderboard-card';
-
-        const mainRow = document.createElement('div');
-        mainRow.className = 'card-main-row';
-        mainRow.innerHTML = wrapper.innerHTML;
 
         container.appendChild(mainRow);
         container.appendChild(details);
 
-        // Expand/collapse handler
         container.addEventListener('click', (e) => {
-            const btn = mainRow.querySelector('.expand-btn');
-            if (e.target.closest('.expand-btn') || e.target === btn) {
-                btn.classList.toggle('expanded');
+            if (e.target.closest('.expand-btn')) {
+                mainRow.querySelector('.expand-btn').classList.toggle('expanded');
                 details.classList.toggle('visible');
             }
         });
@@ -100,72 +120,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function buildStatsHtml(person) {
         let html = '';
-        if (person.presentations > 0) {
-            html += `
-                <div class="stat-item">
-                    <i class="fas fa-desktop stat-icon"></i>
-                    <span class="stat-value">${person.presentations}</span>
-                </div>`;
-        }
-        if (person.reviews > 0) {
-            html += `
-                <div class="stat-item">
-                    <i class="fas fa-gem stat-icon"></i>
-                    <span class="stat-value">${person.reviews}</span>
-                </div>`;
-        }
-        if (person.mentoring > 0) {
-            html += `
-                <div class="stat-item">
-                    <i class="fas fa-users stat-icon"></i>
-                    <span class="stat-value">${person.mentoring}</span>
-                </div>`;
-        }
+        if (person.presentations > 0) html += `<div class="stat-item"><i class="fas fa-desktop stat-icon"></i><span class="stat-value">${person.presentations}</span></div>`;
+        if (person.reviews > 0)       html += `<div class="stat-item"><i class="fas fa-gem stat-icon"></i><span class="stat-value">${person.reviews}</span></div>`;
+        if (person.mentoring > 0)     html += `<div class="stat-item"><i class="fas fa-users stat-icon"></i><span class="stat-value">${person.mentoring}</span></div>`;
         return html;
     }
 
     function getFilteredAndSortedData() {
         let data = [...leaderboardData];
 
-        // Department filter
         const deptValue = departmentFilter.value;
-        if (deptValue !== 'all') {
-            data = data.filter(p => p.department === deptValue);
-        }
+        if (deptValue !== 'all') data = data.filter(p => p.department === deptValue);
 
-        // Sort
-        const sortValue = sortBy.value;
-        switch (sortValue) {
-            case 'total-desc':
-                data.sort((a, b) => b.total - a.total);
-                break;
-            case 'total-asc':
-                data.sort((a, b) => a.total - b.total);
-                break;
-            case 'name-asc':
-                data.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'name-desc':
-                data.sort((a, b) => b.name.localeCompare(a.name));
-                break;
+        switch (sortBy.value) {
+            case 'total-desc': data.sort((a, b) => b.total - a.total); break;
+            case 'total-asc':  data.sort((a, b) => a.total - b.total); break;
+            case 'name-asc':   data.sort((a, b) => a.name.localeCompare(b.name)); break;
+            case 'name-desc':  data.sort((a, b) => b.name.localeCompare(a.name)); break;
         }
 
         return data;
     }
 
-    // Event listeners
-    departmentFilter.addEventListener('change', () => {
-        renderLeaderboard(getFilteredAndSortedData());
-    });
+    function render() {
+        const data = getFilteredAndSortedData();
+        renderPodium(data);
+        renderLeaderboard(data);
+    }
 
-    periodFilter.addEventListener('change', () => {
-        renderLeaderboard(getFilteredAndSortedData());
-    });
+    departmentFilter.addEventListener('change', render);
+    periodFilter.addEventListener('change', render);
+    sortBy.addEventListener('change', render);
 
-    sortBy.addEventListener('change', () => {
-        renderLeaderboard(getFilteredAndSortedData());
-    });
-
-    // Initial render
-    renderLeaderboard(getFilteredAndSortedData());
+    render();
 });
