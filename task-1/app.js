@@ -52,4 +52,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createCard(person, rank) {
         const container = document.createElement('div');
-        container.class
+        container.className = 'leaderboard-card';
+        const mainRow = document.createElement('div');
+        mainRow.className = 'card-main-row';
+        mainRow.innerHTML = `
+            <span class="rank">${rank}</span>
+            <img class="avatar" src="${person.avatar}" alt="${person.name}">
+            <div class="user-info">
+                <div class="user-name">${person.name}</div>
+                <div class="user-title">${person.title}</div>
+            </div>
+            <div class="stats">${buildStatsHtml(person)}</div>
+            <div class="total-section">
+                <span class="total-label">TOTAL</span>
+                <div class="total-score">
+                    <i class="fas fa-star star-icon"></i>
+                    <span class="score-value">${person.total}</span>
+                </div>
+            </div>
+            <button class="expand-btn"><i class="fas fa-chevron-down"></i></button>`;
+        const details = document.createElement('div');
+        details.className = 'card-details';
+        details.innerHTML = `
+            <div class="details-grid">
+                <div class="detail-item"><i class="fas fa-building"></i><span>Department: ${person.department}</span></div>
+                <div class="detail-item"><i class="fas fa-desktop"></i><span>Presentations: ${person.presentations}</span></div>
+                <div class="detail-item"><i class="fas fa-gem"></i><span>Reviews: ${person.reviews}</span></div>
+                <div class="detail-item"><i class="fas fa-users"></i><span>Mentoring: ${person.mentoring}</span></div>
+            </div>`;
+        container.appendChild(mainRow);
+        container.appendChild(details);
+        container.addEventListener('click', (e) => {
+            if (e.target.closest('.expand-btn')) {
+                mainRow.querySelector('.expand-btn').classList.toggle('expanded');
+                details.classList.toggle('visible');
+            }
+        });
+        return container;
+    }
+
+    function buildStatsHtml(person) {
+        let html = '';
+        if (person.presentations > 0) html += `<div class="stat-item"><i class="fas fa-desktop stat-icon"></i><span class="stat-value">${person.presentations}</span></div>`;
+        if (person.reviews > 0)       html += `<div class="stat-item"><i class="fas fa-gem stat-icon"></i><span class="stat-value">${person.reviews}</span></div>`;
+        if (person.mentoring > 0)     html += `<div class="stat-item"><i class="fas fa-users stat-icon"></i><span class="stat-value">${person.mentoring}</span></div>`;
+        return html;
+    }
+
+    function render() {
+        const data = getFilteredAndSortedData();
+        renderPodium(data);
+        renderLeaderboard(data);
+    }
+
+    function getFilteredAndSortedData() {
+        let data = [...leaderboardData];
+        if (departmentFilter.value !== 'all') data = data.filter(p => p.department === departmentFilter.value);
+        switch (sortBy.value) {
+            case 'total-desc': data.sort((a, b) => b.total - a.total); break;
+            case 'total-asc':  data.sort((a, b) => a.total - b.total); break;
+            case 'name-asc':   data.sort((a, b) => a.name.localeCompare(b.name)); break;
+            case 'name-desc':  data.sort((a, b) => b.name.localeCompare(a.name)); break;
+        }
+        return data;
+    }
+
+    departmentFilter.addEventListener('change', render);
+    periodFilter.addEventListener('change', render);
+    sortBy.addEventListener('change', render);
+    render();
+});
