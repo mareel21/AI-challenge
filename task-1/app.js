@@ -1,7 +1,6 @@
 // Application logic
 document.addEventListener('DOMContentLoaded', () => {
     const leaderboardEl = document.getElementById('leaderboard');
-    const podiumEl = document.getElementById('podium');
     const departmentFilter = document.getElementById('department-filter');
     const periodFilter = document.getElementById('period-filter');
     const sortBy = document.getElementById('sort-by');
@@ -13,57 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
         option.textContent = dept;
         departmentFilter.appendChild(option);
     });
-
-    function getInitials(name) {
-        return name.split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    function renderPodium(data) {
-        const top3 = [...data].sort((a, b) => b.total - a.total).slice(0, 3);
-
-        if (top3.length === 0) {
-            podiumEl.innerHTML = '';
-            return;
-        }
-
-        // Display order: silver (2nd) left, gold (1st) center, bronze (3rd) right
-        const slots = [
-            top3.length > 1 ? { person: top3[1], rank: 2 } : null,
-            { person: top3[0], rank: 1 },
-            top3.length > 2 ? { person: top3[2], rank: 3 } : null
-        ].filter(Boolean);
-
-        const tierClass = { 1: 'gold', 2: 'silver', 3: 'bronze' };
-
-        podiumEl.innerHTML = `
-            <div class="podium-stage">
-                ${slots.map(({ person, rank }) => {
-                    const initials = getInitials(person.name);
-                    const avatarStyle = person.avatar
-                        ? `background-image: url('${person.avatar}')`
-                        : '';
-                    const initialsHtml = person.avatar
-                        ? ''
-                        : `<span class="podium-initials">${initials}</span>`;
-                    return `
-                        <div class="podium-slot podium-slot--${tierClass[rank]}">
-                            <div class="podium-card">
-                                <div class="podium-rank-badge">${rank}</div>
-                                <div class="podium-avatar" style="${avatarStyle}">
-                                    ${initialsHtml}
-                                </div>
-                                <div class="podium-name">${person.name}</div>
-                                <div class="podium-score-pill">
-                                    <i class="fas fa-star"></i> ${person.total}
-                                </div>
-                            </div>
-                            <div class="podium-block"></div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
 
     function renderLeaderboard(data) {
         leaderboardEl.innerHTML = '';
@@ -207,15 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listeners
     departmentFilter.addEventListener('change', () => {
-        const data = getFilteredAndSortedData();
-        renderPodium(data);
-        renderLeaderboard(data);
+        renderLeaderboard(getFilteredAndSortedData());
     });
 
     periodFilter.addEventListener('change', () => {
-        const data = getFilteredAndSortedData();
-        renderPodium(data);
-        renderLeaderboard(data);
+        renderLeaderboard(getFilteredAndSortedData());
     });
 
     sortBy.addEventListener('change', () => {
@@ -223,7 +167,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial render
-    const initialData = getFilteredAndSortedData();
-    renderPodium(initialData);
-    renderLeaderboard(initialData);
+    renderLeaderboard(getFilteredAndSortedData());
 });
